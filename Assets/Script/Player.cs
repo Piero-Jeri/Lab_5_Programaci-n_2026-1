@@ -1,9 +1,28 @@
-
+using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
+
+public enum PlayerController
+{
+    None,
+    Player1,
+    Player2
+}
 
 public class Player : BaseEntity
 {
+    public InputSystem_Actions inputs;
+
+    public PlayerController playerController;
+
+    public Animator animator;
+
+
+    public Vector2 MoveInput;
+    public float MoveSpeed;
+
     public CircleCollider2D coll;
     public float range;
 
@@ -13,17 +32,87 @@ public class Player : BaseEntity
     {
         coll = GetComponent<CircleCollider2D>();
         coll.radius = range;
+
+        inputs = new();
     }
+
+    private void OnEnable()
+    {
+        inputs.Enable();
+     
+
+        switch (playerController)
+        {
+
+            case PlayerController.None:
+                break;
+
+            case PlayerController.Player1:
+                {
+                    inputs.Player1.Move.performed += OnPlayerMove;
+                    inputs.Player1.Move.canceled += OnPlayerMoveCanceled;
+
+                    inputs.Player1.Attack1.performed += OnAttack1;
+                    inputs.Player1.Attack2.performed += OnAttack2;
+                }
+                break;
+
+            case PlayerController.Player2:
+                {
+                    inputs.Player2.Move.performed += OnPlayerMove;
+                    inputs.Player2.Move.canceled += OnPlayerMoveCanceled;
+
+                    inputs.Player2.Attack1.performed += OnAttack1;
+                    inputs.Player2.Attack2.performed += OnAttack2;
+                }
+                break;
+      
+        }
+        
+
+    }
+
     void Start()
     {
-        InvokeRepeating("AutoAttackEnemies", 1f, 1f);
+        //InvokeRepeating("AutoAttackEnemies", 1f, 1f);
     }
 
     void Update()
     {
+        OnMove();
+    }
+
+    private void OnAttack2(InputAction.CallbackContext context)
+    {
+        Debug.Log("A1");
+    }
+
+    private void OnAttack1(InputAction.CallbackContext context)
+    {
+        Debug.Log("A2");
+    }
+
+    private void OnPlayerMoveCanceled(InputAction.CallbackContext context)
+    {
+        MoveInput = Vector2.zero;
+    }
+
+    private void OnPlayerMove(InputAction.CallbackContext context)
+    {
+        MoveInput = context.ReadValue<Vector2>();
+    }
+
+
+    public void OnMove()
+    {
+        if(MoveInput != Vector2.zero)
+        {
+            transform.position += (Vector3)MoveInput * MoveSpeed * Time.deltaTime;
+        }
 
     }
-    public void AutoAttackEnemies()
+
+    /*public void AutoAttackEnemies()
     {
         print("ATAQUE!");
 
@@ -34,7 +123,7 @@ public class Player : BaseEntity
                 enemy.GetComponent<Enemy>().TakeDamage(this);
         }
 
-    }
+    }*/
 
     private void OnDestroy()
     {
@@ -42,7 +131,7 @@ public class Player : BaseEntity
     }
 
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    /*private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.GetComponent<Enemy>() != null)
             Enemys.Add(collision.gameObject);
@@ -52,7 +141,7 @@ public class Player : BaseEntity
     {
         //if(Enemys.Find(collision.gameObject))
         Enemys.Remove(collision.gameObject);
-    }
+    }*/
 
     public override void TakeDamage(BaseEntity damager)
     {
