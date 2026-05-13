@@ -40,7 +40,7 @@ public class AnimatorController : MonoBehaviour
         MoveInput = context.ReadValue<Vector2>();
 
         if (MoveInput.x != 0)
-            animator.SetBool("IsMoving", true);
+            animator.SetBool("IsRunning", true);
 
         // (MoveInput.x == -1) GetComponent<SpriteRenderer>().flipX = true;
 
@@ -50,7 +50,7 @@ public class AnimatorController : MonoBehaviour
     private void OnMovementFinish(InputAction.CallbackContext context)
     {
         MoveInput = Vector2.zero;
-        animator.SetBool("IsMoving", false);
+        animator.SetBool("IsRunning", false);
     }
     private void OnJumpStart(InputAction.CallbackContext context)
     {
@@ -58,7 +58,7 @@ public class AnimatorController : MonoBehaviour
     }
     private void OnDashStart(InputAction.CallbackContext context)
     {
-        animator.SetTrigger("OnDashForward");
+        animator.SetTrigger("OnDash");
     }
 
     private void OnStepBack(InputAction.CallbackContext context)
